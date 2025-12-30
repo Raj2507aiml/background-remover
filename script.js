@@ -5,6 +5,10 @@ const upload = document.getElementById("upload");
 const output = document.getElementById("output");
 const preview = document.querySelector(".preview");
 
+let processedBlob = null;
+
+let currentBg = 'transparent';
+
 upload.addEventListener("change", async () => {
   const file = upload.files[0];
   if (!file) return;
@@ -32,7 +36,9 @@ upload.addEventListener("change", async () => {
     }
 
     const blob = await response.blob();
+    processedBlob = blob;
     output.src = URL.createObjectURL(blob);
+    document.getElementById('downloadBtn').style.display = 'block';
   } catch (err) {
     alert("❌ Background removal failed.\n\n" + err.message);
   } finally {
@@ -42,4 +48,19 @@ upload.addEventListener("change", async () => {
 
 function changeBg(color) {
   preview.style.background = color;
+}
+function downloadImage() {
+  if (!processedBlob) {
+    alert("No image to download");
+    return;
+  }
+
+  const url = URL.createObjectURL(processedBlob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "background-removed.png";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
